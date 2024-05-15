@@ -31,12 +31,6 @@ app.post("/upload", upload.single("csvFile"), (req, res) => {
       // process parsed data
       const data = result.data;
       console.log("Parsing data");
-      //   data.forEach((row) => {
-      //     // process each row and create record object
-      //     const record = {};
-      //     records.push(record);
-      //   });
-      console.log("Processing records");
       // send processed data back to client
       res.json(data);
       console.log("Response sent to client");
