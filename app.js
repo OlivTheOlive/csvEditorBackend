@@ -1,10 +1,11 @@
-const express = require("express");
-const multer = require("multer");
-const fs = require("fs");
-const Papa = require("papaparse");
-const cors = require("cors");
+const express = require("express"); // Express.js framework for building web applications and APIs
+const multer = require("multer"); // Middleware for handling file uploads
+const fs = require("fs"); // Node.js file system module for reading and writing files
+const Papa = require("papaparse"); // Library for parsing CSV data
+const cors = require("cors"); // Middleware for enabling Cross-Origin Resource Sharing (CORS)
 
-const app = express();
+const app = express(); // Create an instance of the Express application
+
 const port = 3030;
 
 // allow CORS --> allowing requests from any origin to access the server
