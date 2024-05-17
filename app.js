@@ -1,45 +1,17 @@
-const express = require("express"); // Express.js framework for building web applications and APIs
-const multer = require("multer"); // Middleware for handling file uploads
-const fs = require("fs"); // Node.js file system module for reading and writing files
-const Papa = require("papaparse"); // Library for parsing CSV data
-const cors = require("cors"); // Middleware for enabling Cross-Origin Resource Sharing (CORS)
+const express = require("express");
+const cors = require("cors");
+const uploadRoute = require("./Routes/uploadRoute");
 
-const app = express(); // Create an instance of the Express application
-
+const app = express();
 const port = 3030;
 
-// allow CORS --> allowing requests from any origin to access the server
+// Allow CORS
 app.use(cors());
 
-// set up multer for handling file uploads
-const upload = multer({ dest: "uploads/" });
+// Use the upload routes
+app.use("/", uploadRoute);
 
-// handle file upload
-app.post("/upload", upload.single("csvFile"), (req, res) => {
-  // read the uploaded file
-  console.log("Received file upload request");
-  const csvFilePath = req.file.path;
-  console.log("Uploaded file path:", csvFilePath);
-  const records = [];
-
-  // parse CSV file
-  const fileStream = fs.createReadStream(csvFilePath);
-  Papa.parse(fileStream, {
-    header: true,
-    dynamicTyping: true,
-    complete: (result) => {
-      console.log("CSV parsing complete");
-      // process parsed data
-      const data = result.data;
-      console.log("Parsing data");
-      // send processed data back to client
-      res.json(data);
-      console.log("Response sent to client");
-    },
-  });
-});
-
-// start the server
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
