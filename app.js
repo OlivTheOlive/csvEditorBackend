@@ -22,13 +22,11 @@ class CsvDataDTO {
     // if data is not an array (e.g., an object), convert it to an array of values
     this.data = Array.isArray(data) ? data : Object.values(data);
   }
-
   // getter for the data property
   get data() {
     // return the internal _data property
     return this._data;
   }
-
   // setter for the data property with validation
   set data(newData) {
     // validate that the new data is an array
@@ -40,14 +38,12 @@ class CsvDataDTO {
     }
   }
 }
-
 // handle file upload
 app.post("/upload", upload.single("csvFile"), (req, res) => {
   // read the uploaded file
   console.log("Received file upload request");
   const csvFilePath = req.file.path;
   console.log("Uploaded file path:", csvFilePath);
-
   // parse CSV file asynchronously
   const fileStream = fs.createReadStream(csvFilePath);
   Papa.parse(fileStream, {
