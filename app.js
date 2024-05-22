@@ -24,12 +24,15 @@ class CsvDataDTO {
   }
   // Getter for the data property
   get data() {
+    // Return the internal _data property
     return this._data;
   }
 
   // Setter for the data property with validation
   set data(newData) {
+    // Validate that the new data is an array
     if (Array.isArray(newData)) {
+      // If valid, update the internal _data property
       this._data = newData;
     } else {
       throw new Error("Data must be an array");
