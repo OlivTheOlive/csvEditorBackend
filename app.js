@@ -7,7 +7,7 @@ const cors = require("cors"); // Middleware for enabling Cross-Origin Resource S
 const app = express(); // Create an instance of the Express application
 const port = 3030;
 
-// allow CORS --> allowing requests from any origin to access the server
+// Allow CORS --> allowing requests from any origin to access the server
 app.use(cors());
 
 // set up multer for handling file uploads
@@ -17,22 +17,23 @@ const upload = multer({ dest: "uploads/" });
 class CsvDataDTO {
   // constructor that initializes the DTO with the given data
   constructor(data) {
-    // Check if the data is already an array
+    // check if the data is already an array
     // if data is an array, use it directly
     // if data is not an array (e.g., an object), convert it to an array of values
     this.data = Array.isArray(data) ? data : Object.values(data);
   }
-  // Getter for the data property
+
+  // getter for the data property
   get data() {
-    // Return the internal _data property
+    // return the internal _data property
     return this._data;
   }
 
-  // Setter for the data property with validation
+  // setter for the data property with validation
   set data(newData) {
-    // Validate that the new data is an array
+    // validate that the new data is an array
     if (Array.isArray(newData)) {
-      // If valid, update the internal _data property
+      // if valid, update the internal _data property
       this._data = newData;
     } else {
       throw new Error("Data must be an array");
@@ -47,7 +48,7 @@ app.post("/upload", upload.single("csvFile"), (req, res) => {
   const csvFilePath = req.file.path;
   console.log("Uploaded file path:", csvFilePath);
 
-  // parse CSV file
+  // parse CSV file asynchronously
   const fileStream = fs.createReadStream(csvFilePath);
   Papa.parse(fileStream, {
     header: true,
@@ -55,18 +56,32 @@ app.post("/upload", upload.single("csvFile"), (req, res) => {
     complete: (result) => {
       console.log("CSV parsing complete");
       // process parsed data
-      const data = result.data;
+      let data = result.data;
       console.log("Parsing data");
 
-      // Limit the data to the first 200 entries
+      // limit the data to the first 200 entries
+      console.log("Slicing data to be a max 200 entries");
       data = data.slice(0, 200);
 
-      // Create the DTO with the parsed data
+      // create the DTO with the parsed data
       const csvDataDTO = new CsvDataDTO(data);
 
       // send processed data back to client
       res.json(csvDataDTO);
       console.log("Response sent to client");
+
+      // clean up the uploaded file after processing
+      fs.unlink(csvFilePath, (err) => {
+        if (err) {
+          console.error("Failed to delete temporary file:", err);
+        } else {
+          console.log("Temporary file deleted");
+        }
+      });
+    },
+    error: (error) => {
+      console.error("Error parsing CSV:", error);
+      res.status(500).send("Error parsing CSV file");
     },
   });
 });
