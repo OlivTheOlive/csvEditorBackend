@@ -58,6 +58,9 @@ app.post("/upload", upload.single("csvFile"), (req, res) => {
       const data = result.data;
       console.log("Parsing data");
 
+      // Limit the data to the first 200 entries
+      data = data.slice(0, 200);
+
       // Create the DTO with the parsed data
       const csvDataDTO = new CsvDataDTO(data);
 
