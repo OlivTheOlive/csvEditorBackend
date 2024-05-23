@@ -5,7 +5,7 @@ const Papa = require("papaparse"); // Library for parsing CSV data
 const cors = require("cors"); // Middleware for enabling Cross-Origin Resource Sharing (CORS)
 
 const app = express(); // Create an instance of the Express application
-const port = 3030;
+const port = 3033;
 
 // Allow CORS --> allowing requests from any origin to access the server
 app.use(cors());
