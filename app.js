@@ -19,7 +19,7 @@ class CsvDataDTO {
   constructor(data) {
     // check if the data is already an array
     // if data is an array, use it directly
-    // if data is not an array (e.g., an object), convert it to an array of values
+    // if data is not an array, convert it to an array of values
     this.data = Array.isArray(data) ? data : Object.values(data);
   }
   // getter for the data property
@@ -29,12 +29,19 @@ class CsvDataDTO {
   }
   // setter for the data property with validation
   set data(newData) {
-    // validate that the new data is an array
-    if (Array.isArray(newData)) {
-      // if valid, update the internal _data property
-      this._data = newData;
-    } else {
-      throw new Error("Data must be an array");
+    try {
+      // validate that the new data is an array
+      if (Array.isArray(newData)) {
+        // If valid, update the internal _data property
+        this._data = newData;
+      } else {
+        // If invalid, throw an error
+        throw new TypeError("Data must be an array");
+      }
+    } catch (error) {
+      // Handle the error
+      console.error("Failed to set data:", error.message);
+      throw error;
     }
   }
 }
