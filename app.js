@@ -13,33 +13,39 @@ app.use(cors());
 // set up multer for handling file uploads
 const upload = multer({ dest: "uploads/" });
 
-// DTO class
+// DTO class for encapsulating CSV data into a data transfer object
 class CsvDataDTO {
-  // constructor that initializes the DTO with the given data
+  /**
+   * Initializes the CsvDataDTO with the provided data.
+   * If the data is not an array, it will be converted to an array of values.
+   * @param {Array|Object} data - The data to be encapsulated in the DTO.
+   */
   constructor(data) {
-    // check if the data is already an array
-    // if data is an array, use it directly
-    // if data is not an array, convert it to an array of values
     this.data = Array.isArray(data) ? data : Object.values(data);
   }
-  // getter for the data property
+
+  /**
+   * Getter for accessing the encapsulated data.
+   * @returns {Array} The encapsulated data stored in the DTO.
+   */
   get data() {
-    // return the internal _data property
     return this._data;
   }
-  // setter for the data property with validation
+
+  /**
+   * Setter for updating the encapsulated data with validation.
+   * Throws an error if the new data is not an array.
+   * @param {Array} newData - The new data to be set in the DTO.
+   * @throws {TypeError} If the newData is not an array.
+   */
   set data(newData) {
     try {
-      // validate that the new data is an array
       if (Array.isArray(newData)) {
-        // If valid, update the internal _data property
         this._data = newData;
       } else {
-        // If invalid, throw an error
         throw new TypeError("Data must be an array");
       }
     } catch (error) {
-      // Handle the error
       console.error("Failed to set data:", error.message);
       throw error;
     }
