@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CsvDataDTO } from "../models/csvModel";
 import path from "path";
+import { addHistoryEntry } from "./historyController";
 const fs = require("fs");
 const Papa = require("papaparse");
 
@@ -68,7 +69,7 @@ export const uploadFile = (req: Request, res: Response) => {
  * @param req Express Request object.
  * @param res Express Response object.
  */
-export const saveFile = (req: Request, res: Response): void => {
+export const saveFile = async (req: Request, res: Response): Promise<void> => {
   const { data } = req.body;
 
   if (!Array.isArray(data)) {
@@ -92,6 +93,9 @@ export const saveFile = (req: Request, res: Response): void => {
 
     res.setHeader("Content-Type", "text/csv");
     res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
+
+    // Save to history
+    await addHistoryEntry(data);
 
     // Send the CSV file as a download
     res.sendFile(filePath, (err) => {

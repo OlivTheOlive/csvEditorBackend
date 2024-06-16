@@ -4,6 +4,8 @@ import fileRoutes from "./routes/fileRoutes";
 
 const app = express(); // Create an instance of the Express application
 const port = 3030;
+// CORS Configuration
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
