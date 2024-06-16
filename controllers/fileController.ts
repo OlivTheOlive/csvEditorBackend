@@ -3,6 +3,9 @@ import { CsvDataDTO } from "../models/csvModel";
 const fs = require("fs");
 const Papa = require("papaparse");
 
+interface CsvRowWithId {
+  id: number;
+}
 export const uploadFile = (req: Request, res: Response) => {
   // read the uploaded file
   console.log("Received file upload request");
@@ -13,12 +16,27 @@ export const uploadFile = (req: Request, res: Response) => {
   Papa.parse(fileStream, {
     header: true,
     dynamicTyping: true,
+    transform: (value: any, column: string) => {
+      if (column === 'AADT') {
+        return undefined; // Return undefined to remove this column
+      }else if(column === '85PCT'){
+        return undefined; // Return undefined to remove this column
+      }else if(column === 'PRIORITY_POINTS'){
+        return undefined; // Return undefined to remove this column
+      }
+      return value;
+    },
     complete: (result: any) => {
       console.log("CSV parsing complete");
       let data = result.data;
       console.log("Parsing data");
 
-      data = data.slice(0, 200);
+      // Add incremental IDs
+      let dataWithIds: CsvRowWithId[] = data.map((row:any, index:any) => {
+        return { id: index + 1, ...row };
+      });
+
+      data = dataWithIds.slice(0, 100); // 100 rows slice
 
       const csvDataDTO = new CsvDataDTO(data);
 
