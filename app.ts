@@ -3,7 +3,7 @@ const cors = require("cors"); // Middleware for enabling Cross-Origin Resource S
 import fileRoutes from "./routes/fileRoutes";
 
 const app = express(); // Create an instance of the Express application
-const port = 3033;
+const port = 3030;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
