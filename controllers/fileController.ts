@@ -91,10 +91,7 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
 
     const fileName = "data.csv";
 
-    res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
-
-    // Save to history
+    // Save to history currently not fully funtional
     await addHistoryEntry(data);
 
     // Send the CSV file as a download
@@ -104,11 +101,11 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
         res.status(500).send("Error sending file");
       } else {
         console.log("File sent successfully");
-        // After sending the file, delete the temporary file
+        // delete the temporary file
         fs.unlinkSync(filePath);
       }
     });
-  } catch (error) {
+  } catch (error:any) {
     console.error("Error saving data as CSV:", error);
     res.status(500).send("Internal server error");
   }
