@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 const fs = require("fs");
 const Papa = require("papaparse");
 import { uploadFile } from "../controllers/fileController";
@@ -7,6 +6,7 @@ import { uploadFile } from "../controllers/fileController";
 jest.mock("fs");
 jest.mock("papaparse");
 
+// test the upload() function completely, this took a long time to figure out jesus
 describe("uploadFile", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
@@ -35,7 +35,6 @@ describe("uploadFile", () => {
   it("should parse the CSV file and return the correct response", (done) => {
     const mockData = [
       { column1: "value1", column2: "value2" },
-      // add more mock rows as needed
     ];
 
     const mockParsedResult = {

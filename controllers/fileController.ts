@@ -5,6 +5,7 @@ import { addHistoryEntry } from "./historyController";
 const fs = require("fs");
 const Papa = require("papaparse");
 
+// for readibility
 interface CsvRowWithId {
   id: number;
 }
@@ -24,11 +25,11 @@ export const uploadFile = (req: Request, res: Response) => {
     dynamicTyping: true,
     transform: (value: any, column: string) => {
       if (column === "AADT") {
-        return undefined; // Return undefined to remove this column
+        return undefined; // remove this column
       } else if (column === "85PCT") {
-        return undefined; // Return undefined to remove this column
+        return undefined; // remove this column
       } else if (column === "PRIORITY_POINTS") {
-        return undefined; // Return undefined to remove this column
+        return undefined; //remove this column
       }
       return value;
     },
@@ -37,7 +38,7 @@ export const uploadFile = (req: Request, res: Response) => {
       let data = result.data;
       console.log("Parsing data");
 
-      // Add incremental IDs
+      // Add incremental IDs to rows for better handling
       let dataWithIds: CsvRowWithId[] = data.map((row: any, index: any) => {
         return { id: index + 1, ...row };
       });
@@ -80,10 +81,10 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
   try {
     // Convert data to CSV format using PapaParse
     const csv = Papa.unparse(data, {
-      header: true, // Ensure the first row is treated as headers
+      header: true, // first row is treated as header 
     });
 
-    // Generate a temporary file path
+    // generate a temporary file path
     const filePath = path.join(__dirname, "../temp/data.csv");
 
     // Write CSV data to a temporary file
@@ -91,10 +92,10 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
 
     const fileName = "data.csv";
 
-    // Save to history currently not fully funtional
+    // save to history currently not fully funtional
     await addHistoryEntry(data);
 
-    // Send the CSV file as a download
+    // Send the CSV file as a download when the user wants to save data
     res.sendFile(filePath, (err) => {
       if (err) {
         console.error("Error sending file:", err);
