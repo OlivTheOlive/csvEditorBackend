@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { CsvDataDTO } from "../models/csvModel";
 import path from "path";
-import { addHistoryEntry } from "./historyController";
 const fs = require("fs");
 const Papa = require("papaparse");
 
@@ -81,7 +80,7 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
   try {
     // Convert data to CSV format using PapaParse
     const csv = Papa.unparse(data, {
-      header: true, // first row is treated as header 
+      header: true, // first row is treated as header
     });
 
     // generate a temporary file path
@@ -91,9 +90,6 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
     fs.writeFileSync(filePath, csv, { encoding: "utf-8" });
 
     const fileName = "data.csv";
-
-    // save to history currently not fully funtional
-    await addHistoryEntry(data);
 
     // Send the CSV file as a download when the user wants to save data
     res.sendFile(filePath, (err) => {
@@ -106,7 +102,7 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
         fs.unlinkSync(filePath);
       }
     });
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error saving data as CSV:", error);
     res.status(500).send("Internal server error");
   }
