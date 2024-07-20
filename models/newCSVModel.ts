@@ -12,7 +12,7 @@ const csvSchema = new Schema(
       },
     ],
     name: {
-      type: String, // Assuming 'name' is a single string. Change to [String] if it's an array of strings
+      type: String,
       required: true,
     },
   },
