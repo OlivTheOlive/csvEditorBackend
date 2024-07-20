@@ -152,3 +152,16 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
     res.status(500).send("Internal server error");
   }
 };
+
+export const getHistory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const history = await CsvModel.find().sort({ createdAt: -1 }); // Sort by timestamp in descending order
+    res.json(history);
+  } catch (error) {
+    console.error("Error fetching history:", error);
+    res.status(500).send("Failed to fetch history");
+  }
+};
