@@ -5,7 +5,7 @@ import path from "path";
 const fs = require("fs");
 const Papa = require("papaparse");
 
-// for readibility
+// types 
 interface CsvRowWithId {
   id: number;
 }
@@ -152,7 +152,13 @@ export const saveFile = async (req: Request, res: Response): Promise<void> => {
     res.status(500).send("Internal server error");
   }
 };
-
+/**
+ * Asynchronous function to retrieve history data.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns Promise that resolves to void.
+ */
 export const getHistory = async (
   req: Request,
   res: Response
