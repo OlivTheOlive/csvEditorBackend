@@ -1,112 +1,89 @@
 import { Request, Response } from "express";
-import fs from "fs";
-const Papa = require("papaparse");
-import { uploadFile } from "../controllers/fileController";
+import { getHistory } from "../controllers/fileController";
+import { CsvModel } from "../models/newCSVModel";
 
-// Mocking the fs and PapaParse modules
-jest.mock("fs");
-jest.mock("papaparse");
+// Mock the CsvModel to simulate database interactions
+jest.mock("../models/newCSVModel");
 
-describe("uploadFile", () => {
+describe("getHistory", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
+  let mockSend: jest.Mock;
+  let mockJson: jest.Mock;
+  let mockStatus: jest.Mock;
 
   beforeEach(() => {
-    req = {
-      file: {
-        fieldname: "csvFile",
-        originalname: "data.csv",
-        encoding: "7bit",
-        mimetype: "text/csv",
-        buffer: Buffer.from("column1,column2\nvalue1,value2"), // Mock CSV content
-        size: 100,
-        path: "/__test__/data.csv",
-        // Include additional properties as necessary
-      } as unknown as Express.Multer.File, // Cast to match expected type
-    };
+    // Initialize mock functions
+    mockSend = jest.fn();
+    mockJson = jest.fn();
+    mockStatus = jest.fn().mockReturnValue({ send: mockSend, json: mockJson });
 
+    // Set up mock request and response objects
+    req = {}; 
     res = {
-      json: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      send: jest.fn(),
+      status: mockStatus,
+      json: mockJson,
     };
-
-    // Mock the fs.createReadStream method to return a mock stream
-    (fs.createReadStream as jest.Mock).mockReturnValue("mockStream");
-
-    // Mock the fs.unlink method using jest.spyOn
-    jest
-      .spyOn(fs, "unlink")
-      .mockImplementation((path, callback) => callback(null));
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  it("should return history data successfully", async () => {
+    // Mock the behavior of CsvModel.find to return dummy data 
+    const mockFind = jest.fn().mockResolvedValue([
+      {
+        _id: "mockId1",
+        createdAt: "2024-01-01T00:00:00.000Z",
+        records: [{ id: 1, field1: "value1" }],
+        name: "file1.csv",
+      },
+      {
+        _id: "mockId2",
+        createdAt: "2024-01-02T00:00:00.000Z",
+        records: [{ id: 2, field1: "value2" }],
+        name: "file2.csv",
+      },
+    ]);
+
+    // Mock the implementation of CsvModel.find to return the mock data and sort by createdAt
+    (CsvModel.find as jest.Mock).mockImplementation(() => ({
+      sort: jest.fn().mockReturnValue(mockFind()),
+    }));
+
+    // Call the getHistory function with the mock request and response objects
+    await getHistory(req as Request, res as Response);
+
+    // Assertions to verify the expected behavior
+    expect(CsvModel.find).toHaveBeenCalled();
+    expect(mockJson).toHaveBeenCalledWith([
+      {
+        _id: "mockId1",
+        createdAt: "2024-01-01T00:00:00.000Z",
+        records: [{ id: 1, field1: "value1" }],
+        name: "file1.csv",
+      },
+      {
+        _id: "mockId2",
+        createdAt: "2024-01-02T00:00:00.000Z",
+        records: [{ id: 2, field1: "value2" }],
+        name: "file2.csv",
+      },
+    ]);
   });
 
-  it("should parse the CSV file and return the correct response", (done) => {
-    const mockData = [{ column1: "value1", column2: "value2" }];
+  it("should handle errors when fetching history data", async () => {
+    // Mock the behavior of CsvModel.find to throw an error
+    const mockFind = jest.fn().mockRejectedValue(new Error("Database error"));
 
-    const mockParsedResult = {
-      data: mockData,
-    };
+    // Mock the implementation of CsvModel.find to return the error
+    (CsvModel.find as jest.Mock).mockImplementation(() => ({
+      sort: jest.fn().mockReturnValue(mockFind()),
+    }));
 
-    (Papa.parse as jest.Mock).mockImplementation((fileStream, options) => {
-      options.complete(mockParsedResult);
-    });
+    // Call the getHistory function with the mock request and response objects
+    await getHistory(req as Request, res as Response);
 
-    uploadFile(req as Request, res as Response);
-
-    // Use process.nextTick to wait for asynchronous operations
-    process.nextTick(() => {
-      expect(fs.createReadStream).toHaveBeenCalledWith("/__test__/data.csv");
-      expect(Papa.parse).toHaveBeenCalledWith("mockStream", expect.any(Object));
-
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.arrayContaining([
-            expect.objectContaining({
-              id: expect.any(Number),
-              column1: "value1",
-              column2: "value2",
-            }),
-          ]),
-        })
-      );
-
-      expect(fs.unlink).toHaveBeenCalledWith(
-        "/__test__/data.csv",
-        expect.any(Function)
-      );
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.send).not.toHaveBeenCalled();
-
-      done();
-    });
-  });
-
-  it("should handle errors during file parsing", (done) => {
-    const mockError = new Error("Parse error");
-
-    (Papa.parse as jest.Mock).mockImplementation((fileStream, options) => {
-      options.error(mockError);
-    });
-
-    uploadFile(req as Request, res as Response);
-
-    process.nextTick(() => {
-      expect(fs.createReadStream).toHaveBeenCalledWith("/__test__/data.csv");
-      expect(Papa.parse).toHaveBeenCalledWith("mockStream", expect.any(Object));
-
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.send).toHaveBeenCalledWith("Error parsing CSV file");
-
-      expect(fs.unlink).toHaveBeenCalledWith(
-        "/__test__/data.csv",
-        expect.any(Function)
-      );
-
-      done();
-    });
+    // Assertions to verify the expected error handling behavior
+    expect(CsvModel.find).toHaveBeenCalled();
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockSend).toHaveBeenCalledWith("Failed to fetch history");
   });
 });
