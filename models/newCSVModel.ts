@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-// Define the schema for CSV records
+// Defined schema for CSV records
 const csvSchema = new Schema(
   {
     records: [
