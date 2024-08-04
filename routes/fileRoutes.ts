@@ -5,7 +5,7 @@ import {
   saveFile,
   uploadFile,
 } from "../controllers/fileController";
-import { CsvModel } from "../models/newCSVModel"; // Ensure correct import path
+
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
